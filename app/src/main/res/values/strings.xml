@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Disaster App</string>
+    <string name="example">This is text %1$d</string>
 </resources>
