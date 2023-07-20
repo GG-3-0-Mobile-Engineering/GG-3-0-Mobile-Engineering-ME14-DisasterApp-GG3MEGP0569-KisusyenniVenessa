@@ -1,8 +1,8 @@
 package com.kisusyenni.disasterapp.view
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.constraintlayout.widget.ConstraintLayout
+import android.widget.FrameLayout
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -11,38 +11,33 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.kisusyenni.disasterapp.R
 import com.kisusyenni.disasterapp.databinding.ActivityMainBinding
-import com.kisusyenni.disasterapp.databinding.BottomSheetBinding
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
-    private lateinit var dialog: BottomSheetDialog
     private lateinit var binding: ActivityMainBinding
-    private lateinit var dialogView: BottomSheetBinding
-    private lateinit var bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout>
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
     private lateinit var mMap: GoogleMap
     private val dummyData = ArrayList<String>()
+
     private fun showDisasterListBottomSheet() {
-        dialogView = BottomSheetBinding.inflate(layoutInflater, null, false)
-        dialog = BottomSheetDialog(this, R.style.BottomSheetDialogTheme)
-        dialog.setContentView(dialogView.root)
-        bottomSheetBehavior = BottomSheetBehavior.from(dialogView.root)
-        dialog.show()
-        dialog.behavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+        // Initialize the bottom sheet behavior
+        bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheetContent)
+        // Set the bottom sheet to be persistent
+        bottomSheetBehavior.isHideable = false
+        // Set the bottom sheet state to half expanded
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
     }
 
     private fun setDisasterList() {
         val disasterListAdapter = DisasterListAdapter()
-        dialogView.apply {
-            rvDisaster.apply {
-                adapter = disasterListAdapter
-                layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
-                setHasFixedSize(true)
-            }
+        binding.rvDisaster.apply {
+            adapter = disasterListAdapter
+            layoutManager =
+                LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
+            setHasFixedSize(true)
         }
-
         disasterListAdapter.submitList(dummyData)
     }
 
