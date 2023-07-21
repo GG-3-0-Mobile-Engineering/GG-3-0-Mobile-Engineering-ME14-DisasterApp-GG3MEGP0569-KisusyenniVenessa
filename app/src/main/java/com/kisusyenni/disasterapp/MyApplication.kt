@@ -2,6 +2,7 @@ package com.kisusyenni.disasterapp
 
 import android.app.Application
 import com.kisusyenni.disasterapp.di.networkModule
+import com.kisusyenni.disasterapp.di.viewModelModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -12,7 +13,7 @@ class MyApplication: Application() {
         startKoin {
             androidLogger()
             androidContext(this@MyApplication)
-            modules(networkModule)
+            modules(networkModule, viewModelModule)
         }
     }
 }

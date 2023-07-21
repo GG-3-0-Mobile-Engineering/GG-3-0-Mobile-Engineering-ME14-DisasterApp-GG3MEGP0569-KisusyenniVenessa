@@ -2,7 +2,13 @@ package com.kisusyenni.disasterapp.view
 
 import android.os.Bundle
 import android.widget.FrameLayout
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -12,7 +18,11 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.kisusyenni.disasterapp.R
+import com.kisusyenni.disasterapp.data.api.ReportsResponse
 import com.kisusyenni.disasterapp.databinding.ActivityMainBinding
+import com.kisusyenni.disasterapp.viewmodel.MainViewModel
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -20,6 +30,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
     private lateinit var mMap: GoogleMap
     private val dummyData = ArrayList<String>()
+    private val viewModel by inject<MainViewModel>()
 
     private fun showDisasterListBottomSheet() {
         // Initialize the bottom sheet behavior
@@ -30,7 +41,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
     }
 
-    private fun setDisasterList() {
+    private fun setDisasterList(data: ReportsResponse) {
         val disasterListAdapter = DisasterListAdapter()
         binding.rvDisaster.apply {
             adapter = disasterListAdapter
@@ -39,6 +50,19 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             setHasFixedSize(true)
         }
         disasterListAdapter.submitList(dummyData)
+        val result = data.result
+    }
+
+    private fun getData() {
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.getData().collect  { data ->
+                    setDisasterList(data)
+                }
+
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,7 +79,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             dummyData.add(resources.getString(R.string.example, i) )
         }
         showDisasterListBottomSheet()
-        setDisasterList()
+        getData()
     }
 
     // Set Google maps
