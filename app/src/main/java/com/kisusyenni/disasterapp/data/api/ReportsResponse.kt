@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class ReportsResponse(
 
 	@field:SerializedName("result")
-	val result: Result? = null,
+	val result: ReportsResult? = null,
 
 	@field:SerializedName("statusCode")
 	val statusCode: Int? = null
@@ -23,10 +23,10 @@ data class ReportsOutput(
 data class ReportsResult(
 
 	@field:SerializedName("objects")
-	val objects: Objects? = null,
+	val objects: ReportsObjects? = null,
 
 	@field:SerializedName("bbox")
-	val bbox: List<Any?>? = null,
+	val bbox: List<Double?>? = null,
 
 	@field:SerializedName("type")
 	val type: String? = null,
@@ -53,13 +53,13 @@ data class ReportsData(
 data class ReportsObjects(
 
 	@field:SerializedName("output")
-	val output: Output? = null
+	val output: ReportsOutput? = null
 )
 
 data class ReportsGeometriesItem(
 
 	@field:SerializedName("coordinates")
-	val coordinates: List<Any?>? = null,
+	val coordinates: List<Double?>? = null,
 
 	@field:SerializedName("type")
 	val type: String? = null,
@@ -98,7 +98,7 @@ data class ReportsProperties(
 	val source: String? = null,
 
 	@field:SerializedName("title")
-	val title: Any? = null,
+	val title: String? = null,
 
 	@field:SerializedName("url")
 	val url: String? = null,
