@@ -1,6 +1,5 @@
 package com.kisusyenni.disasterapp.data.api
 
-import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -12,6 +11,10 @@ interface ApiService {
 
     @GET("reports")
     suspend fun getReports(
-        @Query("admin") admin: String? = null
+        @Query("admin") admin: String? = null,
+        @Query("format") format: String? = null,
+        @Query("disaster") disaster: String? = null,
+        @Query("geoformat") geoformat: String? = null,
+        @Query("timeperiod") timeperiod: String? = null
     ): ReportsResponse
 }
