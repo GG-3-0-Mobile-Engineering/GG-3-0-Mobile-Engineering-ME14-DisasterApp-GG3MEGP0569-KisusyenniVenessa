@@ -6,5 +6,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface DisasterAppRepository {
     fun getFloodGauges(): Flow<FloodGaugesResponse>
-    fun getReports(): Flow<ReportsResponse>
+    fun getReports(type: String?): Flow<ReportsResponse>
 }

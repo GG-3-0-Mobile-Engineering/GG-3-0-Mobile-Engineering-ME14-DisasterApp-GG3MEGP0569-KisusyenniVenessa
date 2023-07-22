@@ -2,11 +2,8 @@ package com.kisusyenni.disasterapp.view
 
 import android.os.Bundle
 import android.widget.FrameLayout
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,6 +17,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.kisusyenni.disasterapp.R
 import com.kisusyenni.disasterapp.data.api.ReportsResponse
 import com.kisusyenni.disasterapp.databinding.ActivityMainBinding
+import com.kisusyenni.disasterapp.utils.UiState
 import com.kisusyenni.disasterapp.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -55,10 +53,25 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun getData() {
 
+        viewModel.getReports(null)
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.getData().collect  { data ->
-                    setDisasterList(data)
+                viewModel.reports.collect { state ->
+                    when(state) {
+                        is UiState.Empty -> {
+
+                        }
+                        is UiState.Loading -> {
+
+                        }
+                        is UiState.Success<*> -> {
+                            setDisasterList(state.result as ReportsResponse)
+                        }
+                        is UiState.Failure -> {
+
+                        }
+                    }
+
                 }
 
             }
