@@ -1,15 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
+    android:gravity="center"
+    android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/item_disaster_title"
+    <ImageView
+        android:id="@+id/iv_item_disaster"
+        android:layout_width="100dp"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/iv_item_disaster"
+        tools:src="@tools:sample/backgrounds/scenic" />
+
+    <LinearLayout
+        android:layout_marginStart="8dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
-        android:text="@string/example"/>
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/item_disaster_src"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:textStyle="bold"
+            android:textSize="11sp"
+            android:textColor="@color/design_default_color_primary"
+            android:maxLines="1"
+            android:ellipsize="end"
+            tools:text="@string/example_src" />
+
+        <TextView
+            android:id="@+id/item_disaster_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:maxLines="2"
+            android:ellipsize="end"
+            tools:text="@string/example" />
+
+        <TextView
+            android:id="@+id/item_disaster_desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:maxLines="2"
+            android:ellipsize="end"
+            tools:text="@string/example_desc" />
+
+        <TextView
+            android:id="@+id/item_disaster_created_at"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:textSize="11sp"
+            android:textStyle="italic"
+            android:maxLines="1"
+            android:ellipsize="end"
+            tools:text="@string/item_disaster_created_at" />
+    </LinearLayout>
+
 
 </LinearLayout>

@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -21,6 +22,7 @@ import com.kisusyenni.disasterapp.utils.UiState
 import com.kisusyenni.disasterapp.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -42,33 +44,38 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun setDisasterList(data: ReportsResponse) {
         val disasterListAdapter = DisasterListAdapter()
         binding.rvDisaster.apply {
+            addItemDecoration(
+                DividerItemDecoration(
+                    this.context,
+                    DividerItemDecoration.VERTICAL
+                )
+            )
             adapter = disasterListAdapter
             layoutManager =
                 LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
             setHasFixedSize(true)
         }
-        disasterListAdapter.submitList(dummyData)
-        val result = data.result
+        disasterListAdapter.submitList(data.result?.objects?.output?.geometries)
     }
 
     private fun getData() {
 
-        viewModel.getReports(null)
+        viewModel.getReports("ID-JK")
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.reports.collect { state ->
                     when(state) {
                         is UiState.Empty -> {
-
+                            println("Empty")
                         }
                         is UiState.Loading -> {
-
+                            println("Loading")
                         }
                         is UiState.Success<*> -> {
                             setDisasterList(state.result as ReportsResponse)
                         }
                         is UiState.Failure -> {
-
+                            println("Failed")
                         }
                     }
 
