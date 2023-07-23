@@ -13,7 +13,7 @@ class DisasterAppRepositoryImpl(private val api: ApiService): DisasterAppReposit
         emit(data)
     }.flowOn(Dispatchers.IO)
     override fun getReports(type: String?): Flow<ReportsResponse> = flow {
-        val data = api.getReports(type)
+        val data = api.getReportsArchive(type)
         emit(data)
     }.flowOn(Dispatchers.IO)
 }

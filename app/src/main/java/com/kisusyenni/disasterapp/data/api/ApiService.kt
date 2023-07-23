@@ -17,4 +17,12 @@ interface ApiService {
         @Query("geoformat") geoformat: String? = null,
         @Query("timeperiod") timeperiod: String? = null
     ): ReportsResponse
+
+    @GET("reports/archive")
+    suspend fun getReportsArchive(
+        @Query("admin") admin: String? = null,
+        @Query("start") format: String? = "2017-12-04T00:00:00+0700",
+        @Query("end") disaster: String? = "2017-12-06T05:00:00+0700",
+        @Query("geoformat") geoformat: String? = null,
+    ): ReportsResponse
 }
