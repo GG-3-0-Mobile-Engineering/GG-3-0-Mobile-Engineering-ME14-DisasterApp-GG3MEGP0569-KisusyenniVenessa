@@ -2,7 +2,6 @@ package com.kisusyenni.disasterapp.di
 
 import com.kisusyenni.disasterapp.BuildConfig
 import com.kisusyenni.disasterapp.data.api.ApiService
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.dsl.module
