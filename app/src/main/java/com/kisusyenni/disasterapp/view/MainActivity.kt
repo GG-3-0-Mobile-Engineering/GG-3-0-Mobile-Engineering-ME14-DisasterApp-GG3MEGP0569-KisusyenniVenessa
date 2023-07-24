@@ -1,6 +1,7 @@
 package com.kisusyenni.disasterapp.view
 
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
@@ -17,9 +18,12 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
+import com.google.android.material.search.SearchView.TransitionState
+import com.kisusyenni.disasterapp.R
 import com.kisusyenni.disasterapp.data.api.ReportsGeometriesItem
 import com.kisusyenni.disasterapp.data.api.ReportsResponse
 import com.kisusyenni.disasterapp.databinding.ActivityMainBinding
+import com.kisusyenni.disasterapp.utils.ToastHelper.setToastShort
 import com.kisusyenni.disasterapp.utils.UiState
 import com.kisusyenni.disasterapp.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
@@ -138,6 +142,42 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    private fun setUpSearchBar() {
+        val searchBar = binding.searchBar
+        searchBar.inflateMenu(R.menu.searchbar_menu)
+        searchBar.setOnMenuItemClickListener { menuItem: MenuItem? ->
+            when(menuItem?.itemId) {
+                R.id.notification -> {
+                    //TODO
+                    setToastShort(this@MainActivity, "Notification")
+                    true
+                }
+                R.id.dark_mode -> {
+                    //TODO
+                    setToastShort(this@MainActivity, "Dark Mode")
+                    true
+                }
+                else -> true
+            }
+        }
+
+
+    }
+
+    private fun setUpSearchView() {
+        val searchView = binding.searchView
+        val bottomSheetLayout = binding.disasterListCoordinatior
+        searchView.addTransitionListener { _, _, newState ->
+
+            if (newState === TransitionState.SHOWING) {
+                // Handle search view opened.
+                bottomSheetLayout.visibility = View.GONE
+            } else if (newState === TransitionState.HIDING) {
+                bottomSheetLayout.visibility = View.VISIBLE
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -147,6 +187,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
             .findFragmentById(binding.map.id) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        setUpSearchBar()
+        setUpSearchView()
     }
 
     // Set Google maps
