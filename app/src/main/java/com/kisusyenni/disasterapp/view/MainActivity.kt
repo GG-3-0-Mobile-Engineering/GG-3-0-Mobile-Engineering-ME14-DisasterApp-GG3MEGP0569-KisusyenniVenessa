@@ -1,6 +1,7 @@
 package com.kisusyenni.disasterapp.view
 
 import android.os.Bundle
+import android.view.View
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
@@ -15,7 +16,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.kisusyenni.disasterapp.R
+import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.kisusyenni.disasterapp.data.api.ReportsResponse
 import com.kisusyenni.disasterapp.databinding.ActivityMainBinding
 import com.kisusyenni.disasterapp.utils.UiState
@@ -29,16 +30,45 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityMainBinding
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
     private lateinit var mMap: GoogleMap
-    private val dummyData = ArrayList<String>()
     private val viewModel by inject<MainViewModel>()
 
     private fun showDisasterListBottomSheet() {
-        // Initialize the bottom sheet behavior
+        val originHeight = (0.3f * resources.displayMetrics.heightPixels).toInt()
         bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheetContent)
-        // Set the bottom sheet to be persistent
-        bottomSheetBehavior.isHideable = false
-        // Set the bottom sheet state to half expanded
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+        bottomSheetBehavior.apply {
+            isHideable = false
+            peekHeight = originHeight
+            state = BottomSheetBehavior.STATE_COLLAPSED
+
+            addBottomSheetCallback(object : BottomSheetCallback() {
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    if(state == BottomSheetBehavior.STATE_EXPANDED) {
+                        binding.slideDownBtn.visibility = View.VISIBLE
+                        binding.dragHandle.visibility = View.GONE
+                        isDraggable = false
+                    } else {
+                        binding.slideDownBtn.visibility = View.GONE
+                        binding.dragHandle.visibility = View.VISIBLE
+                        isDraggable = true
+                    }
+                }
+
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    if(slideOffset > originHeight) {
+                        state = BottomSheetBehavior.STATE_EXPANDED
+                    }
+                }
+
+            })
+        }
+
+        binding.slideDownBtn.setOnClickListener {
+            bottomSheetBehavior.apply {
+                state = BottomSheetBehavior.STATE_COLLAPSED
+                peekHeight = originHeight
+            }
+
+        }
     }
 
     private fun setDisasterList(data: ReportsResponse) {
@@ -95,9 +125,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(binding.map.id) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        for(i in 1..10) {
-            dummyData.add(resources.getString(R.string.example, i) )
-        }
         showDisasterListBottomSheet()
         getData()
     }

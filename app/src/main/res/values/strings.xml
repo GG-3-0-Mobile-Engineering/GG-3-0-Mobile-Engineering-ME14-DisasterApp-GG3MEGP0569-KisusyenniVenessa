@@ -3,8 +3,10 @@
     <string name="example">This is text %1$d</string>
     <string name="example_desc">Lorem Ipsum is simply dummy text of the printing and typesetting industry</string>
     <string name="example_src">Source name</string>
+    <string name="rv_disaster_title">Latest Disaster Information </string>
     <string name="item_disaster_created_at">Created at %1$s</string>
     <string name="item_disaster_empty_title">Unknown Title</string>
     <string name="item_disaster_empty_desc">There is no description provided</string>
     <string name="iv_item_disaster">Item Disaster Image</string>
+    <string name="close">Close</string>
 </resources>
