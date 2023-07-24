@@ -17,6 +17,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
+import com.kisusyenni.disasterapp.data.api.ReportsGeometriesItem
 import com.kisusyenni.disasterapp.data.api.ReportsResponse
 import com.kisusyenni.disasterapp.databinding.ActivityMainBinding
 import com.kisusyenni.disasterapp.utils.UiState
@@ -88,6 +89,27 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         disasterListAdapter.submitList(data.result?.objects?.output?.geometries)
     }
 
+    private fun setCoordinatesData(geos: List<ReportsGeometriesItem?>?) {
+        if (!geos.isNullOrEmpty()) {
+            for (place in geos.withIndex()) {
+
+                val lat: Double = place.value?.coordinates?.get(1) ?: 0.0
+                val lng:Double = place.value?.coordinates?.get(0) ?: 0.0
+
+                val area = LatLng(lat,lng)
+
+                mMap.addMarker(
+                    MarkerOptions()
+                        .position(area)
+                        .title(place.value?.properties?.pkey))
+
+                if(place.index == 0) {
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(area, 12F))
+                }
+            }
+        }
+    }
+
     private fun getData() {
 
         viewModel.getReports("ID-JK")
@@ -103,6 +125,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                         }
                         is UiState.Success<*> -> {
                             setDisasterList(state.result as ReportsResponse)
+                            setCoordinatesData(state.result.result?.objects?.output?.geometries)
                         }
                         is UiState.Failure -> {
                             println("Failed")
@@ -124,22 +147,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
             .findFragmentById(binding.map.id) as SupportMapFragment
         mapFragment.getMapAsync(this)
-
-        showDisasterListBottomSheet()
-        getData()
     }
 
     // Set Google maps
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(
-            MarkerOptions()
-            .position(sydney)
-            .title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        getData()
+        showDisasterListBottomSheet()
     }
 
 }
