@@ -9,4 +9,12 @@
     <string name="item_disaster_empty_desc">There is no description provided</string>
     <string name="iv_item_disaster">Item Disaster Image</string>
     <string name="close">Close</string>
+    <string name="flood">Flood</string>
+    <string name="earthquake">Earthquake</string>
+    <string name="fire">Fire</string>
+    <string name="haze">Haze</string>
+    <string name="wind">Wind</string>
+    <string name="volcano">Volcano</string>
+    <string name="no_type">Type not listed</string>
+    <string name="searchbar_hint">Cari disini</string>
 </resources>
