@@ -22,4 +22,12 @@
     <string name="settings">Settings</string>
     <string name="dark_mode">Dark Mode</string>
     <string name="dark_mode_desc">Enable dark mode theme</string>
+    <string-array name="disaster_types">
+        <item>@string/flood</item>
+        <item>@string/earthquake</item>
+        <item>@string/fire</item>
+        <item>@string/haze</item>
+        <item>@string/wind</item>
+        <item>@string/volcano</item>
+    </string-array>
 </resources>
