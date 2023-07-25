@@ -4,58 +4,119 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
+
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@android:color/transparent">
 
-        <androidx.core.widget.NestedScrollView
+        <com.google.android.material.search.SearchBar
+            android:id="@+id/search_bar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/searchbar_scrolling_view_behavior">
-            <!-- Screen content goes here. -->
-        </androidx.core.widget.NestedScrollView>
+            android:layout_height="wrap_content"
 
-        <com.google.android.material.appbar.AppBarLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:hint="@string/searchbar_hint" />
+    </com.google.android.material.appbar.AppBarLayout>
 
-            <com.google.android.material.search.SearchBar
-                android:id="@+id/search_bar"
-                android:layout_width="match_parent"
+    <HorizontalScrollView
+        android:id="@+id/filter_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/disaster_chip_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:singleLine="true"
+            app:singleSelection="true"
+            app:selectionRequired="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_flood"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="@string/searchbar_hint" />
-        </com.google.android.material.appbar.AppBarLayout>
+                android:checked="true"
+                android:text="@string/flood" />
 
-        <com.google.android.material.search.SearchView
-            android:id="@+id/search_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:hint="@string/searchbar_hint"
-            app:layout_anchor="@id/search_bar">
-            <!-- Search suggestions/results go here (ScrollView, RecyclerView, etc.). -->
-        </com.google.android.material.search.SearchView>
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_earthquake"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/earthquake" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_fire"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fire" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_haze"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/haze" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_wind"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/wind" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_volcano"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/volcano" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+    </HorizontalScrollView>
+
+    <com.google.android.material.search.SearchView
+        android:id="@+id/search_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/searchbar_hint"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
+
+    </com.google.android.material.search.SearchView>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/disaster_list_coordinatior"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="50dp">
+        app:layout_constraintStart_toStartOf="parent">
 
         <FrameLayout
             android:id="@+id/bottom_sheet_content"
@@ -68,7 +129,8 @@
             <com.google.android.material.bottomsheet.BottomSheetDragHandleView
                 android:id="@+id/drag_handle"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -78,10 +140,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp"
+                    android:gravity="center"
                     android:orientation="horizontal"
-                    android:gravity="center">
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp">
 
                     <ImageButton
                         android:id="@+id/slide_down_btn"
@@ -90,17 +152,17 @@
                         android:layout_height="wrap_content"
                         android:contentDescription="@string/close"
                         android:minWidth="48dp"
-                        android:visibility="gone"
-                        android:src="@drawable/ic_arrow_down_24" />
+                        android:src="@drawable/ic_arrow_down_24"
+                        android:visibility="gone" />
 
                     <TextView
                         android:id="@+id/tv_rv_disaster_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="24sp"
-                        android:textStyle="bold"
                         android:layout_marginStart="8dp"
-                        android:text="@string/rv_disaster_title"/>
+                        android:text="@string/rv_disaster_title"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -117,5 +179,6 @@
         </FrameLayout>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
