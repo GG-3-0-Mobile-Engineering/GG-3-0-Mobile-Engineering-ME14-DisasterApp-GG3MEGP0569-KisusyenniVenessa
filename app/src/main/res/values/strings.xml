@@ -18,4 +18,5 @@
     <string name="no_type">Type not listed</string>
     <string name="searchbar_hint">Cari disini</string>
     <string name="notification">Notification</string>
+    <string name="theme">Theme</string>
 </resources>

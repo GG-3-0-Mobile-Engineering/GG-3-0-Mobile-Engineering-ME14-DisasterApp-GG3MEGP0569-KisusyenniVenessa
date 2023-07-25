@@ -6,8 +6,8 @@
         android:title="@string/notification"
         app:showAsAction="ifRoom" />
 
-    <item android:id="@+id/dark_mode"
+    <item android:id="@+id/theme"
         android:icon="@drawable/ic_dark_mode_24"
-        android:title="@string/notification"
+        android:title="@string/theme"
         app:showAsAction="ifRoom" />
 </menu>
