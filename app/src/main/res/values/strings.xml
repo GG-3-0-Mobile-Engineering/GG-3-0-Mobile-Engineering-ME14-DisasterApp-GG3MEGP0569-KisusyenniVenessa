@@ -19,4 +19,7 @@
     <string name="searchbar_hint">Cari disini</string>
     <string name="notification">Notification</string>
     <string name="theme">Theme</string>
+    <string name="settings">Settings</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="dark_mode_desc">Enable dark mode theme</string>
 </resources>

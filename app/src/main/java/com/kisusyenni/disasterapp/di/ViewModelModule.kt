@@ -8,22 +8,30 @@ import com.kisusyenni.disasterapp.data.SettingsPreference
 import com.kisusyenni.disasterapp.data.SettingsPreferenceImpl
 import com.kisusyenni.disasterapp.data.repository.DisasterAppRepository
 import com.kisusyenni.disasterapp.data.repository.DisasterAppRepositoryImpl
+import com.kisusyenni.disasterapp.viewmodel.SettingsViewModel
 import com.kisusyenni.disasterapp.viewmodel.MainViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
-val viewModelModule= module {
+val mainViewModelModule= module {
     single<DisasterAppRepository> {
         DisasterAppRepositoryImpl(get())
     }
 
+    single {
+        MainViewModel(get())
+    }
+}
+
+
+val settingsViewModelModule = module {
     single<SettingsPreference> {
         SettingsPreferenceImpl(androidContext().dataStore)
     }
 
     single {
-        MainViewModel(get(), get())
+        SettingsViewModel(get())
     }
 }

@@ -15,12 +15,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DisasterApp"
         tools:targetApi="31">
+        <activity
+            android:name=".view.SettingsActivity"
+            android:exported="false"
+            android:parentActivityName=".view.MainActivity"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}" />
 
         <activity
+            android:theme="@style/Base.Theme.DisasterApp.NoActionBar"
             android:name=".view.MainActivity"
             android:exported="true">
             <intent-filter>

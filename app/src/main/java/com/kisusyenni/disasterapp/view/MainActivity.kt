@@ -1,13 +1,11 @@
 package com.kisusyenni.disasterapp.view
 
+import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -26,7 +24,6 @@ import com.kisusyenni.disasterapp.R
 import com.kisusyenni.disasterapp.data.api.ReportsGeometriesItem
 import com.kisusyenni.disasterapp.data.api.ReportsResponse
 import com.kisusyenni.disasterapp.databinding.ActivityMainBinding
-import com.kisusyenni.disasterapp.utils.ToastHelper.setToastShort
 import com.kisusyenni.disasterapp.utils.UiState
 import com.kisusyenni.disasterapp.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
@@ -39,7 +36,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
     private lateinit var mMap: GoogleMap
     private val viewModel by inject<MainViewModel>()
-    private var isDarkMode: Boolean = false
 
     private fun showDisasterListBottomSheet() {
         val originHeight = (0.3f * resources.displayMetrics.heightPixels).toInt()
@@ -156,21 +152,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         searchBar.setOnMenuItemClickListener { menuItem: MenuItem? ->
             when (menuItem?.itemId) {
-                R.id.notification -> {
-                    //TODO
-                    setToastShort(this@MainActivity, "Notification")
-                    true
-                }
+//                R.id.notification -> {
+//                    //TODO
+//                    setToastShort(this@MainActivity, "Notification")
+//                    true
+//                }
 
-                R.id.theme -> {
-                    viewModel.saveTheme(!isDarkMode)
-                    if (isDarkMode) {
-                        menuItem.icon =
-                            ContextCompat.getDrawable(this, R.drawable.ic_light_mode_24)
-                    } else {
-                        menuItem.icon =
-                            ContextCompat.getDrawable(this, R.drawable.ic_dark_mode_24)
-                    }
+                R.id.settings -> {
+                    intentToSettings()
                     true
                 }
 
@@ -178,17 +167,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        if (menu != null) {
-            if (isDarkMode) {
-                menu.getItem(1).icon = ContextCompat.getDrawable(this, R.drawable.ic_light_mode_24)
-            } else {
-                menu.getItem(1).icon = ContextCompat.getDrawable(this, R.drawable.ic_dark_mode_24)
-            }
-        }
-        return super.onCreateOptionsMenu(menu)
     }
 
     private fun setUpSearchView() {
@@ -205,21 +183,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun observeTheme() {
-        viewModel.getTheme()
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.isDarkMode.collect { isDarkMode ->
-                    this@MainActivity.isDarkMode = isDarkMode
-
-                    if (isDarkMode) {
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                    } else {
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                    }
-                }
-
-            }
+    private fun intentToSettings() {
+        Intent(this, SettingsActivity::class.java).also {
+            startActivity(it)
         }
     }
 
@@ -233,7 +199,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(binding.map.id) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        observeTheme()
         setUpSearchBar()
         setUpSearchView()
     }
