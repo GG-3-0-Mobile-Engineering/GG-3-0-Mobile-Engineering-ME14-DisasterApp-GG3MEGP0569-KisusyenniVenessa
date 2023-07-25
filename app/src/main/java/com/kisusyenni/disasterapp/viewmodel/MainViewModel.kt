@@ -14,9 +14,18 @@ class MainViewModel(private val repository: DisasterAppRepository) : ViewModel()
     private val _reports: MutableStateFlow<UiState> = MutableStateFlow(UiState.Empty)
     val reports: StateFlow<UiState> = _reports
 
-    fun getReports(type: String?) = viewModelScope.launch {
+    fun getReports(disaster: String) = viewModelScope.launch {
        _reports.value = UiState.Loading
-        repository.getReports(type).catch { e ->
+        repository.getReports(disaster).catch { e ->
+            _reports.value = UiState.Failure(e)
+        }.collect {data ->
+            _reports.value = UiState.Success(data)
+        }
+    }
+
+    fun getReports(disaster: String, admin: String) = viewModelScope.launch {
+        _reports.value = UiState.Loading
+        repository.getReports(disaster, admin).catch { e ->
             _reports.value = UiState.Failure(e)
         }.collect {data ->
             _reports.value = UiState.Success(data)

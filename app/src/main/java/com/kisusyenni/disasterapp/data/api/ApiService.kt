@@ -18,6 +18,17 @@ interface ApiService {
         @Query("timeperiod") timeperiod: String? = null
     ): ReportsResponse
 
+    @GET("reports")
+    suspend fun getReports(
+        @Query("disaster") disaster: String? = null
+    ): ReportsResponse
+
+    @GET("reports")
+    suspend fun getReports(
+        @Query("admin") admin: String? = null,
+        @Query("disaster") disaster: String? = null
+    ): ReportsResponse
+
     @GET("reports/archive")
     suspend fun getReportsArchive(
         @Query("admin") admin: String? = null,
