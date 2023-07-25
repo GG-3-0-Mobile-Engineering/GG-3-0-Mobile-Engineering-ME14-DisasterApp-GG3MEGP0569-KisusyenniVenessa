@@ -6,6 +6,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.children
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -115,19 +116,24 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun getData() {
+    private fun getData(disaster: String = resources.getString(R.string.flood), admin: String = "ID-JK") {
 
-        viewModel.getReports("ID-JK")
+        viewModel.getReports(disaster)
+
+        observeReports()
+    }
+
+    private fun observeReports() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.reports.collect { state ->
                     when (state) {
                         is UiState.Empty -> {
-                            println("Empty")
+                            println("Disaster Data: Empty")
                         }
 
                         is UiState.Loading -> {
-                            println("Loading")
+                            println("Disaster Data: Loading")
                         }
 
                         is UiState.Success<*> -> {
@@ -136,7 +142,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                         }
 
                         is UiState.Failure -> {
-                            println("Failed")
+                            println("Disaster Data: Failed")
                         }
                     }
 
@@ -152,12 +158,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         searchBar.setOnMenuItemClickListener { menuItem: MenuItem? ->
             when (menuItem?.itemId) {
-//                R.id.notification -> {
-//                    //TODO
-//                    setToastShort(this@MainActivity, "Notification")
-//                    true
-//                }
-
                 R.id.settings -> {
                     intentToSettings()
                     true
@@ -172,12 +172,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun setUpSearchView() {
         val searchView = binding.searchView
         val bottomSheetLayout = binding.disasterListCoordinatior
+
+        searchView.setupWithSearchBar(binding.searchBar)
+
         searchView.addTransitionListener { _, _, newState ->
 
             if (newState === TransitionState.SHOWING) {
                 // Handle search view opened.
                 bottomSheetLayout.visibility = View.GONE
+                binding.searchBar.visibility = View.GONE
             } else if (newState === TransitionState.HIDING) {
+                binding.searchBar.visibility = View.VISIBLE
                 bottomSheetLayout.visibility = View.VISIBLE
             }
         }
@@ -187,6 +192,22 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         Intent(this, SettingsActivity::class.java).also {
             startActivity(it)
         }
+    }
+
+    private fun setUpChipGroup() {
+        var disaster = findDisasterName(binding.disasterChipGroup.checkedChipId)
+        getData(disaster)
+
+
+        binding.disasterChipGroup.setOnCheckedStateChangeListener { group, _ ->
+            disaster = findDisasterName(group.checkedChipId)
+            getData(disaster)
+        }
+    }
+
+    private fun findDisasterName(checkedId: Int): String {
+        val position = binding.disasterChipGroup.children.indexOfFirst { it.id == checkedId }
+        return resources.getStringArray(R.array.disaster_types)[position].lowercase()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -207,7 +228,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        getData()
+        setUpChipGroup()
         showDisasterListBottomSheet()
     }
 
