@@ -1,10 +1,13 @@
 package com.kisusyenni.disasterapp.view
 
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -36,6 +39,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
     private lateinit var mMap: GoogleMap
     private val viewModel by inject<MainViewModel>()
+    private var isDarkMode: Boolean = false
 
     private fun showDisasterListBottomSheet() {
         val originHeight = (0.3f * resources.displayMetrics.heightPixels).toInt()
@@ -47,7 +51,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
             addBottomSheetCallback(object : BottomSheetCallback() {
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
-                    if(state == BottomSheetBehavior.STATE_EXPANDED) {
+                    if (state == BottomSheetBehavior.STATE_EXPANDED) {
                         binding.slideDownBtn.visibility = View.VISIBLE
                         binding.dragHandle.visibility = View.GONE
                         isDraggable = false
@@ -59,7 +63,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
 
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                    if(slideOffset > originHeight) {
+                    if (slideOffset > originHeight) {
                         state = BottomSheetBehavior.STATE_EXPANDED
                     }
                 }
@@ -98,16 +102,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             for (place in geos.withIndex()) {
 
                 val lat: Double = place.value?.coordinates?.get(1) ?: 0.0
-                val lng:Double = place.value?.coordinates?.get(0) ?: 0.0
+                val lng: Double = place.value?.coordinates?.get(0) ?: 0.0
 
-                val area = LatLng(lat,lng)
+                val area = LatLng(lat, lng)
 
                 mMap.addMarker(
                     MarkerOptions()
                         .position(area)
-                        .title(place.value?.properties?.pkey))
+                        .title(place.value?.properties?.pkey)
+                )
 
-                if(place.index == 0) {
+                if (place.index == 0) {
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(area, 12F))
                 }
             }
@@ -120,17 +125,20 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.reports.collect { state ->
-                    when(state) {
+                    when (state) {
                         is UiState.Empty -> {
                             println("Empty")
                         }
+
                         is UiState.Loading -> {
                             println("Loading")
                         }
+
                         is UiState.Success<*> -> {
                             setDisasterList(state.result as ReportsResponse)
                             setCoordinatesData(state.result.result?.objects?.output?.geometries)
                         }
+
                         is UiState.Failure -> {
                             println("Failed")
                         }
@@ -145,23 +153,42 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun setUpSearchBar() {
         val searchBar = binding.searchBar
         searchBar.inflateMenu(R.menu.searchbar_menu)
+
         searchBar.setOnMenuItemClickListener { menuItem: MenuItem? ->
-            when(menuItem?.itemId) {
+            when (menuItem?.itemId) {
                 R.id.notification -> {
                     //TODO
                     setToastShort(this@MainActivity, "Notification")
                     true
                 }
-                R.id.dark_mode -> {
-                    //TODO
-                    setToastShort(this@MainActivity, "Dark Mode")
+
+                R.id.theme -> {
+                    viewModel.saveTheme(!isDarkMode)
+                    if (isDarkMode) {
+                        menuItem.icon =
+                            ContextCompat.getDrawable(this, R.drawable.ic_light_mode_24)
+                    } else {
+                        menuItem.icon =
+                            ContextCompat.getDrawable(this, R.drawable.ic_dark_mode_24)
+                    }
                     true
                 }
+
                 else -> true
             }
         }
 
+    }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        if (menu != null) {
+            if (isDarkMode) {
+                menu.getItem(1).icon = ContextCompat.getDrawable(this, R.drawable.ic_light_mode_24)
+            } else {
+                menu.getItem(1).icon = ContextCompat.getDrawable(this, R.drawable.ic_dark_mode_24)
+            }
+        }
+        return super.onCreateOptionsMenu(menu)
     }
 
     private fun setUpSearchView() {
@@ -178,6 +205,24 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    private fun observeTheme() {
+        viewModel.getTheme()
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.isDarkMode.collect { isDarkMode ->
+                    this@MainActivity.isDarkMode = isDarkMode
+
+                    if (isDarkMode) {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    } else {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    }
+                }
+
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -188,6 +233,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(binding.map.id) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+        observeTheme()
         setUpSearchBar()
         setUpSearchView()
     }
