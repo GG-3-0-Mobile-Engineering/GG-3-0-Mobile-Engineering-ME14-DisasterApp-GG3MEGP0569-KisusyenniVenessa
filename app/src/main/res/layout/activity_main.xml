@@ -107,6 +107,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_area"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
     </com.google.android.material.search.SearchView>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
