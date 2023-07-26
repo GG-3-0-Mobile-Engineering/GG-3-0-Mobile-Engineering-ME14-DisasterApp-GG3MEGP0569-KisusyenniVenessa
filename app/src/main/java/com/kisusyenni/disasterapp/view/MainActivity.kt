@@ -52,15 +52,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
             addBottomSheetCallback(object : BottomSheetCallback() {
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
-                    if (state == BottomSheetBehavior.STATE_EXPANDED) {
-                        binding.slideDownBtn.visibility = View.VISIBLE
-                        binding.dragHandle.visibility = View.GONE
-                        isDraggable = false
-                    } else {
-                        binding.slideDownBtn.visibility = View.GONE
-                        binding.dragHandle.visibility = View.VISIBLE
-                        isDraggable = true
-                    }
+                    val visible = View.VISIBLE
+                    val gone = View.GONE
+
+                    // Show slide down button if bottom sheet is expanded
+                    binding.slideDownBtn.visibility = if(state == BottomSheetBehavior.STATE_EXPANDED) visible else gone
+
+                    // Hide drag handle if bottom sheet is expanded
+                    binding.dragHandle.visibility = if(state == BottomSheetBehavior.STATE_EXPANDED) gone else visible
+
+                    // When bottom sheet is expanded, unable to drag
+                    isDraggable = (state != BottomSheetBehavior.STATE_EXPANDED)
                 }
 
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
@@ -295,7 +297,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         setUpChipGroup()
         observeReports()
         showDisasterListBottomSheet()
-
     }
 
 }
