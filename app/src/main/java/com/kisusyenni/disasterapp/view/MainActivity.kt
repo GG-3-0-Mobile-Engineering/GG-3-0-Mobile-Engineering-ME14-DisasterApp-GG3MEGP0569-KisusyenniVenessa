@@ -210,8 +210,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         val searchBar = binding.searchBar
         val bottomSheetLayout = binding.disasterListCoordinatior
 
+        // Setup search view and search bar
         searchView.setupWithSearchBar(searchBar)
 
+        // Hide views when search view is showing
         searchView.addTransitionListener { _, _, newState ->
 
             if (newState === TransitionState.SHOWING) {
@@ -224,6 +226,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
+        // When user typing area
         searchView
             .editText
             .addTextChangedListener(object : TextWatcher {
@@ -241,11 +244,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     } else {
                         areaList
                     }
+
+                    if(keyword.isEmpty()) {
+                        viewModel.setAdmin(null)
+                        searchBar.text = null
+                    }
                     viewModel.setAreaData(filtered)
                 }
 
                 override fun afterTextChanged(p0: Editable?) {}
             })
+
     }
 
     private fun intentToSettings() {

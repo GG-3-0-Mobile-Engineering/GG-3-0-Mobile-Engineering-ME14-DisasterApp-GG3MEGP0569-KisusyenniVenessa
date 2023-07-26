@@ -43,7 +43,7 @@ class MainViewModel(private val repository: DisasterAppRepository) : ViewModel()
         }
     }
 
-    fun setAdmin(area: Area) {
+    fun setAdmin(area: Area?) {
         _admin.value = area
     }
 
