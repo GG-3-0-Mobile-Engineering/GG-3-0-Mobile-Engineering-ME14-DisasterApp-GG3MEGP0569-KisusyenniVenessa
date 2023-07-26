@@ -2,6 +2,8 @@ package com.kisusyenni.disasterapp.view
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
@@ -25,6 +27,8 @@ import com.kisusyenni.disasterapp.R
 import com.kisusyenni.disasterapp.data.api.ReportsGeometriesItem
 import com.kisusyenni.disasterapp.data.api.ReportsResponse
 import com.kisusyenni.disasterapp.databinding.ActivityMainBinding
+import com.kisusyenni.disasterapp.utils.Area
+import com.kisusyenni.disasterapp.utils.AreaHelper.areaList
 import com.kisusyenni.disasterapp.utils.UiState
 import com.kisusyenni.disasterapp.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
@@ -116,11 +120,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun getData(disaster: String = resources.getString(R.string.flood), admin: String = "ID-JK") {
-
+    private fun getData(disaster: String = resources.getString(R.string.flood)) {
         viewModel.getReports(disaster)
+    }
 
-        observeReports()
+    private fun getData(disaster: String = resources.getString(R.string.flood), admin: String) {
+        viewModel.getReports(disaster, admin)
     }
 
     private fun observeReports() {
@@ -171,9 +176,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun setUpSearchView() {
         val searchView = binding.searchView
+        val searchBar = binding.searchBar
         val bottomSheetLayout = binding.disasterListCoordinatior
 
-        searchView.setupWithSearchBar(binding.searchBar)
+        searchView.setupWithSearchBar(searchBar)
 
         searchView.addTransitionListener { _, _, newState ->
 
@@ -186,6 +192,33 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 bottomSheetLayout.visibility = View.VISIBLE
             }
         }
+
+        setDisasterAreaList(areaList)
+
+        searchView
+            .editText
+            .addTextChangedListener (object : TextWatcher {
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                    val keyword = p0.toString()
+                    filterAreaList(keyword)
+                }
+
+                override fun afterTextChanged(p0: Editable?) {}
+            })
+    }
+
+    private fun filterAreaList(keyword: String){
+        val filtered = if(keyword.isNotEmpty()) {
+            areaList.filter { it.province
+                .lowercase()
+                .replace("\\s".toRegex(), "")
+                .contains(keyword.replace("\\s".toRegex(), "")) }
+        } else {
+            areaList
+        }
+        setDisasterAreaList(filtered)
     }
 
     private fun intentToSettings() {
@@ -198,7 +231,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         var disaster = findDisasterName(binding.disasterChipGroup.checkedChipId)
         getData(disaster)
 
-
         binding.disasterChipGroup.setOnCheckedStateChangeListener { group, _ ->
             disaster = findDisasterName(group.checkedChipId)
             getData(disaster)
@@ -208,6 +240,38 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun findDisasterName(checkedId: Int): String {
         val position = binding.disasterChipGroup.children.indexOfFirst { it.id == checkedId }
         return resources.getStringArray(R.array.disaster_types)[position].lowercase()
+    }
+
+    private fun setDisasterAreaList(area: List<Area>) {
+        val areaListAdapter = AreaListAdapter(area)
+        binding.rvArea.apply {
+            addItemDecoration(
+                DividerItemDecoration(
+                    this.context,
+                    DividerItemDecoration.VERTICAL
+                )
+            )
+            adapter = areaListAdapter
+            layoutManager =
+                LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
+            setHasFixedSize(true)
+
+        }
+        areaListAdapter.apply {
+            notifyDataSetChanged()
+            setOnAreaClickCallback(object : AreaListAdapter.OnAreaClickCallback {
+                override fun onItemClicked(area: Area, position: Int) {
+                    setSearchBarText(area.province)
+                    getData(admin = area.code)
+                }
+
+            })
+        }
+    }
+
+    private fun setSearchBarText(area: String) {
+        binding.searchBar.text = area
+        binding.searchView.hide()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -229,7 +293,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap = googleMap
 
         setUpChipGroup()
+        observeReports()
         showDisasterListBottomSheet()
+
     }
 
 }
