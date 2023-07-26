@@ -56,10 +56,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     val gone = View.GONE
 
                     // Show slide down button if bottom sheet is expanded
-                    binding.slideDownBtn.visibility = if(state == BottomSheetBehavior.STATE_EXPANDED) visible else gone
+                    binding.slideDownBtn.visibility =
+                        if (state == BottomSheetBehavior.STATE_EXPANDED) visible else gone
 
                     // Hide drag handle if bottom sheet is expanded
-                    binding.dragHandle.visibility = if(state == BottomSheetBehavior.STATE_EXPANDED) gone else visible
+                    binding.dragHandle.visibility =
+                        if (state == BottomSheetBehavior.STATE_EXPANDED) gone else visible
 
                     // When bottom sheet is expanded, unable to drag
                     isDraggable = (state != BottomSheetBehavior.STATE_EXPANDED)
@@ -101,13 +103,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun setCoordinatesData(geos: List<ReportsGeometriesItem?>?) {
+        mMap.clear()
         if (!geos.isNullOrEmpty()) {
             for (place in geos.withIndex()) {
+
 
                 val lat: Double = place.value?.coordinates?.get(1) ?: 0.0
                 val lng: Double = place.value?.coordinates?.get(0) ?: 0.0
 
                 val area = LatLng(lat, lng)
+
 
                 mMap.addMarker(
                     MarkerOptions()
@@ -115,8 +120,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                         .title(place.value?.properties?.pkey)
                 )
 
+                val zoom = if (geos.size > 10) 12F else 18F
+
                 if (place.index == 0) {
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(area, 12F))
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(area, zoom))
                 }
             }
         }
@@ -159,6 +166,28 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    /*
+        Filter Functionality for Filter Disaster Type
+    */
+    private fun setUpTypeChipGroup() {
+        var disaster = findDisasterName(binding.disasterChipGroup.checkedChipId)
+        viewModel.setDisasterType(disaster)
+
+        binding.disasterChipGroup.setOnCheckedStateChangeListener { group, _ ->
+            disaster = findDisasterName(group.checkedChipId)
+            viewModel.setDisasterType(disaster)
+        }
+    }
+
+    private fun findDisasterName(checkedId: Int): String {
+        val position = binding.disasterChipGroup.children.indexOfFirst { it.id == checkedId }
+        return resources.getStringArray(R.array.disaster_types)[position].lowercase()
+    }
+
+    /*
+        Search Functionality for Filter Area
+    */
+
     private fun setUpSearchBar() {
         val searchBar = binding.searchBar
         searchBar.inflateMenu(R.menu.searchbar_menu)
@@ -195,53 +224,34 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-        setDisasterAreaList(areaList)
-
         searchView
             .editText
-            .addTextChangedListener (object : TextWatcher {
+            .addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
                 override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                     val keyword = p0.toString()
-                    filterAreaList(keyword)
+                    val filtered = if (keyword.isNotEmpty()) {
+                        areaList.filter {
+                            it.province
+                                .lowercase()
+                                .replace("\\s".toRegex(), "")
+                                .contains(keyword.replace("\\s".toRegex(), ""))
+                        }
+                    } else {
+                        areaList
+                    }
+                    viewModel.setAreaData(filtered)
                 }
 
                 override fun afterTextChanged(p0: Editable?) {}
             })
     }
 
-    private fun filterAreaList(keyword: String){
-        val filtered = if(keyword.isNotEmpty()) {
-            areaList.filter { it.province
-                .lowercase()
-                .replace("\\s".toRegex(), "")
-                .contains(keyword.replace("\\s".toRegex(), "")) }
-        } else {
-            areaList
-        }
-        setDisasterAreaList(filtered)
-    }
-
     private fun intentToSettings() {
         Intent(this, SettingsActivity::class.java).also {
             startActivity(it)
         }
-    }
-
-    private fun setUpChipGroup() {
-        var disaster = findDisasterName(binding.disasterChipGroup.checkedChipId)
-        getData(disaster)
-
-        binding.disasterChipGroup.setOnCheckedStateChangeListener { group, _ ->
-            disaster = findDisasterName(group.checkedChipId)
-            getData(disaster)
-        }
-    }
-
-    private fun findDisasterName(checkedId: Int): String {
-        val position = binding.disasterChipGroup.children.indexOfFirst { it.id == checkedId }
-        return resources.getStringArray(R.array.disaster_types)[position].lowercase()
     }
 
     private fun setDisasterAreaList(area: List<Area>) {
@@ -259,12 +269,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             setHasFixedSize(true)
 
         }
+
         areaListAdapter.apply {
             notifyDataSetChanged()
             setOnAreaClickCallback(object : AreaListAdapter.OnAreaClickCallback {
                 override fun onItemClicked(area: Area, position: Int) {
                     setSearchBarText(area.province)
-                    getData(admin = area.code)
+                    viewModel.setAdmin(area)
                 }
 
             })
@@ -274,6 +285,32 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun setSearchBarText(area: String) {
         binding.searchBar.text = area
         binding.searchView.hide()
+    }
+
+    private fun observeDisasterAreaList() {
+        viewModel.setAreaData(areaList)
+        viewModel.areaData.observe(this) {
+            setDisasterAreaList(it)
+        }
+    }
+
+    /*
+    * Observe disaster type selection and search area changed for get data
+    * */
+
+    private fun observeDisasterTypeAndArea() {
+        viewModel.disasterType.observe(this) { type ->
+            if (viewModel.getAdmin() == null) {
+                getData(disaster = type)
+            }
+
+            viewModel.admin.observe(this) { area ->
+                if (area != null) {
+                    getData(disaster = type, admin = area.code)
+                }
+            }
+
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -294,8 +331,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        setUpChipGroup()
+        setUpTypeChipGroup()
         observeReports()
+        observeDisasterTypeAndArea()
+        observeDisasterAreaList()
         showDisasterListBottomSheet()
     }
 
