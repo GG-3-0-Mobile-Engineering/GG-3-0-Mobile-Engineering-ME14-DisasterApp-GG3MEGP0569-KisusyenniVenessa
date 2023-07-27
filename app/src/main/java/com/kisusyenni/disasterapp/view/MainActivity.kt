@@ -29,6 +29,7 @@ import com.kisusyenni.disasterapp.data.api.ReportsResponse
 import com.kisusyenni.disasterapp.databinding.ActivityMainBinding
 import com.kisusyenni.disasterapp.utils.Area
 import com.kisusyenni.disasterapp.utils.AreaHelper.areaList
+import com.kisusyenni.disasterapp.utils.ToastHelper.setToastShort
 import com.kisusyenni.disasterapp.utils.UiState
 import com.kisusyenni.disasterapp.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
@@ -105,6 +106,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun setCoordinatesData(geos: List<ReportsGeometriesItem?>?) {
         mMap.clear()
         if (!geos.isNullOrEmpty()) {
+            setToastShort(this@MainActivity, resources.getString(R.string.success_load_data))
             for (place in geos.withIndex()) {
 
 
@@ -126,6 +128,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(area, zoom))
                 }
             }
+        } else {
+            setToastShort(this@MainActivity, resources.getString(R.string.empty_disaster_data))
         }
     }
 
@@ -143,20 +147,37 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 viewModel.reports.collect { state ->
                     when (state) {
                         is UiState.Empty -> {
-                            println("Disaster Data: Empty")
+                            binding.pbDisaster.visibility = View.VISIBLE
+                            binding.pbMap.visibility = View.VISIBLE
+                            binding.tvDisasterState.visibility = View.GONE
                         }
 
                         is UiState.Loading -> {
                             println("Disaster Data: Loading")
+                            binding.pbDisaster.visibility = View.VISIBLE
+                            binding.pbMap.visibility = View.VISIBLE
+                            binding.tvDisasterState.visibility = View.GONE
                         }
 
                         is UiState.Success<*> -> {
                             setDisasterList(state.result as ReportsResponse)
                             setCoordinatesData(state.result.result?.objects?.output?.geometries)
+                            binding.pbDisaster.visibility = View.GONE
+                            binding.pbMap.visibility = View.GONE
+                            binding.tvDisasterState.visibility = View.GONE
                         }
 
                         is UiState.Failure -> {
-                            println("Disaster Data: Failed")
+                            state.e.message?.let {
+                                setToastShort(this@MainActivity, it)
+                                binding.tvDisasterState.apply {
+                                    title = it
+                                    visibility = View.VISIBLE
+                                }
+                            }
+                            binding.pbDisaster.visibility = View.GONE
+                            binding.pbMap.visibility = View.GONE
+
                         }
                     }
 
@@ -234,27 +255,35 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                     val keyword = p0.toString()
+
+                    // If keyword is not empty, return filtered area based on keyword, else set all area list
                     val filtered = if (keyword.isNotEmpty()) {
                         areaList.filter {
                             it.province
                                 .lowercase()
                                 .replace("\\s".toRegex(), "")
-                                .contains(keyword.replace("\\s".toRegex(), ""))
+                                .contains(keyword
+                                    .lowercase()
+                                    .replace("\\s".toRegex(), ""))
                         }
                     } else {
                         areaList
                     }
 
+                    viewModel.setAreaData(filtered)
+
+                    // If keyword is empty set admin view model data and search bar text to null
                     if(keyword.isEmpty()) {
                         viewModel.setAdmin(null)
                         searchBar.text = null
                     }
-                    viewModel.setAreaData(filtered)
+
+                    // If area list is not found show text to imply data is empty
+                    binding.tvAreaState.visibility = if(filtered.isEmpty()) View.VISIBLE else View.GONE
                 }
 
                 override fun afterTextChanged(p0: Editable?) {}
             })
-
     }
 
     private fun intentToSettings() {
