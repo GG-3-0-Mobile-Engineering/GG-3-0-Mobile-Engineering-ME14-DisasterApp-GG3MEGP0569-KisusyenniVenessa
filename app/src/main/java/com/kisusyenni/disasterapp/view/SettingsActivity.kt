@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.kisusyenni.disasterapp.R
 import com.kisusyenni.disasterapp.databinding.ActivitySettingsBinding
 import com.kisusyenni.disasterapp.viewmodel.SettingsViewModel
 import kotlinx.coroutines.launch
@@ -44,8 +45,11 @@ class SettingsActivity : AppCompatActivity() {
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setDisplayShowHomeEnabled(true)
+        supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            setDisplayShowHomeEnabled(true)
+            title = resources.getString(R.string.settings)
+        }
 
         observeTheme()
         switchTheme()
