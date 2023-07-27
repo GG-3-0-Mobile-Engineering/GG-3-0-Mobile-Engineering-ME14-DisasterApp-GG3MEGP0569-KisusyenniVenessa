@@ -29,6 +29,7 @@ import com.kisusyenni.disasterapp.data.api.ReportsResponse
 import com.kisusyenni.disasterapp.databinding.ActivityMainBinding
 import com.kisusyenni.disasterapp.utils.Area
 import com.kisusyenni.disasterapp.utils.AreaHelper.areaList
+import com.kisusyenni.disasterapp.utils.NotificationHelper
 import com.kisusyenni.disasterapp.utils.ToastHelper.setToastShort
 import com.kisusyenni.disasterapp.utils.UiState
 import com.kisusyenni.disasterapp.viewmodel.MainViewModel
@@ -107,8 +108,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap.clear()
         if (!geos.isNullOrEmpty()) {
             setToastShort(this@MainActivity, resources.getString(R.string.success_load_data))
-            for (place in geos.withIndex()) {
 
+            for (place in geos.withIndex()) {
 
                 val lat: Double = place.value?.coordinates?.get(1) ?: 0.0
                 val lng: Double = place.value?.coordinates?.get(0) ?: 0.0
@@ -262,9 +263,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                             it.province
                                 .lowercase()
                                 .replace("\\s".toRegex(), "")
-                                .contains(keyword
-                                    .lowercase()
-                                    .replace("\\s".toRegex(), ""))
+                                .contains(
+                                    keyword
+                                        .lowercase()
+                                        .replace("\\s".toRegex(), "")
+                                )
                         }
                     } else {
                         areaList
@@ -273,13 +276,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     viewModel.setAreaData(filtered)
 
                     // If keyword is empty set admin view model data and search bar text to null
-                    if(keyword.isEmpty()) {
+                    if (keyword.isEmpty()) {
                         viewModel.setAdmin(null)
                         searchBar.text = null
                     }
 
                     // If area list is not found show text to imply data is empty
-                    binding.tvAreaState.visibility = if(filtered.isEmpty()) View.VISIBLE else View.GONE
+                    binding.tvAreaState.visibility =
+                        if (filtered.isEmpty()) View.VISIBLE else View.GONE
                 }
 
                 override fun afterTextChanged(p0: Editable?) {}
@@ -337,6 +341,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     * */
 
     private fun observeDisasterTypeAndArea() {
+
         viewModel.disasterType.observe(this) { type ->
             if (viewModel.getAdmin() == null) {
                 getData(disaster = type)
@@ -348,6 +353,18 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
 
+            createNotification(type)
+        }
+    }
+
+    private fun createNotification(type: String) {
+        val service = NotificationHelper(applicationContext)
+        val isTypeSame = type.lowercase() == resources.getString(R.string.flood).lowercase()
+        if (isTypeSame) {
+            service.showNotification(
+                title = resources.getString(R.string.water_level_alert),
+                message = resources.getString(R.string.water_level_alert_desc)
+            )
         }
     }
 

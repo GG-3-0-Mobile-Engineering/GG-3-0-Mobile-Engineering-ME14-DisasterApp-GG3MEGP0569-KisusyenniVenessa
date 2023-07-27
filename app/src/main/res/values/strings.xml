@@ -33,4 +33,6 @@
     <string name="success_load_data">Successfully load data</string>
     <string name="empty_disaster_data">No disaster is found</string>
     <string name="empty_area_data">No area is found. Please type another keyword</string>
+    <string name="water_level_alert">Water Level is High</string>
+    <string name="water_level_alert_desc">Current water level is high, please evacuate</string>
 </resources>
