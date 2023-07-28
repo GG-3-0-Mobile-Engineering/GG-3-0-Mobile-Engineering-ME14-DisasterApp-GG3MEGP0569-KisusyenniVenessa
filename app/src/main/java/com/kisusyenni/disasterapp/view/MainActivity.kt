@@ -154,7 +154,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                         }
 
                         is UiState.Loading -> {
-                            println("Disaster Data: Loading")
                             binding.pbDisaster.visibility = View.VISIBLE
                             binding.pbMap.visibility = View.VISIBLE
                             binding.tvDisasterState.visibility = View.GONE
