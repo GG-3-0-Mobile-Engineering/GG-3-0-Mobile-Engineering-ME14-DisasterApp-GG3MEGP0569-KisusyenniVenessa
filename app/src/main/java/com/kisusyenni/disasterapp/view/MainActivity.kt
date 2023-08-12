@@ -33,9 +33,9 @@ import com.kisusyenni.disasterapp.utils.NotificationHelper
 import com.kisusyenni.disasterapp.utils.ToastHelper.setToastShort
 import com.kisusyenni.disasterapp.utils.UiState
 import com.kisusyenni.disasterapp.viewmodel.MainViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
-
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -116,17 +116,21 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 val area = LatLng(lat, lng)
 
-
                 mMap.addMarker(
                     MarkerOptions()
                         .position(area)
                         .title(place.value?.properties?.pkey)
                 )
 
-                val zoom = if (geos.size > 10) 12F else 18F
+                val zoom = if (geos.size > 10) 10F else 15F
 
                 if (place.index == 0) {
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(area, zoom))
+                    lifecycleScope.launch {
+                        delay(1000L)
+                        mMap.animateCamera(
+                            CameraUpdateFactory.newLatLngZoom(area, zoom)
+                        )
+                    }
                 }
             }
         } else {
@@ -296,14 +300,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun setDisasterAreaList(area: List<Area>) {
-        val areaListAdapter = AreaListAdapter(area)
+        val areaListAdapter = AreaListAdapter()
         binding.rvArea.apply {
-            addItemDecoration(
-                DividerItemDecoration(
-                    this.context,
-                    DividerItemDecoration.VERTICAL
-                )
-            )
+//            addItemDecoration(
+//                DividerItemDecoration(
+//                    this.context,
+//                    DividerItemDecoration.VERTICAL
+//                )
+//            )
             adapter = areaListAdapter
             layoutManager =
                 LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
@@ -312,6 +316,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         areaListAdapter.apply {
+            submitList(area)
             notifyDataSetChanged()
             setOnAreaClickCallback(object : AreaListAdapter.OnAreaClickCallback {
                 override fun onItemClicked(area: Area, position: Int) {
