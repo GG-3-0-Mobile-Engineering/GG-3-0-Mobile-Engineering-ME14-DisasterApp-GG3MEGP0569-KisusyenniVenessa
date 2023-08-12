@@ -2,11 +2,13 @@ package com.kisusyenni.disasterapp.view
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.kisusyenni.disasterapp.databinding.AreaListItemBinding
 import com.kisusyenni.disasterapp.utils.Area
 
-class AreaListAdapter(private val areaList: List<Area>): RecyclerView.Adapter<AreaListAdapter.AreaViewHolder>() {
+class AreaListAdapter : ListAdapter<Area, AreaListAdapter.AreaViewHolder>(AreaItemDiffCallback()) {
 
     private lateinit var onAreaClickCallback: OnAreaClickCallback
 
@@ -23,10 +25,8 @@ class AreaListAdapter(private val areaList: List<Area>): RecyclerView.Adapter<Ar
         return AreaViewHolder(binding)
     }
 
-    override fun getItemCount(): Int = areaList.size
-
     override fun onBindViewHolder(holder: AreaViewHolder, position: Int) {
-        val data = areaList[position]
+        val data = getItem(position)
         holder.bindTo(data, position)
     }
 
@@ -38,5 +38,12 @@ class AreaListAdapter(private val areaList: List<Area>): RecyclerView.Adapter<Ar
             }
         }
     }
+
+}
+
+class AreaItemDiffCallback: DiffUtil.ItemCallback<Area>() {
+    override fun areItemsTheSame(oldItem: Area, newItem: Area): Boolean = oldItem == newItem
+
+    override fun areContentsTheSame(oldItem: Area, newItem: Area): Boolean = oldItem == newItem
 
 }
