@@ -5,22 +5,13 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
-import com.kisusyenni.disasterapp.di.mainViewModelModule
-import com.kisusyenni.disasterapp.di.networkModule
-import com.kisusyenni.disasterapp.di.settingsViewModelModule
 import com.kisusyenni.disasterapp.utils.NotificationHelper
-import org.koin.android.ext.koin.androidContext
-import org.koin.android.ext.koin.androidLogger
-import org.koin.core.context.startKoin
+import dagger.hilt.android.HiltAndroidApp
 
+@HiltAndroidApp
 class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        startKoin {
-            androidLogger()
-            androidContext(this@MyApplication)
-            modules(networkModule, mainViewModelModule, settingsViewModelModule)
-        }
         createNotificationChannel()
     }
 
