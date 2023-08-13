@@ -10,6 +10,7 @@ import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -33,16 +34,17 @@ import com.kisusyenni.disasterapp.utils.NotificationHelper
 import com.kisusyenni.disasterapp.utils.ToastHelper.setToastShort
 import com.kisusyenni.disasterapp.utils.UiState
 import com.kisusyenni.disasterapp.viewmodel.MainViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
     private lateinit var mMap: GoogleMap
-    private val viewModel by inject<MainViewModel>()
+    private lateinit var viewModel: MainViewModel
 
     private fun showDisasterListBottomSheet() {
         val originHeight = (0.3f * resources.displayMetrics.heightPixels).toInt()
@@ -85,6 +87,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
         }
+    }
+
+    private fun setUpViewModel() {
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
     }
 
     private fun setDisasterList(data: ReportsResponse) {
@@ -376,6 +382,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setUpViewModel()
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager

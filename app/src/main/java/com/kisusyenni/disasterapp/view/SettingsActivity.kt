@@ -5,18 +5,23 @@ import android.widget.CompoundButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.kisusyenni.disasterapp.R
 import com.kisusyenni.disasterapp.databinding.ActivitySettingsBinding
 import com.kisusyenni.disasterapp.viewmodel.SettingsViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
 
+@AndroidEntryPoint
 class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding
-    private val viewModel by inject<SettingsViewModel>()
+    private lateinit var viewModel: SettingsViewModel
 
+    private fun setUpViewModel() {
+        viewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
+    }
     private fun observeTheme() {
         viewModel.getTheme()
         lifecycleScope.launch {
@@ -44,6 +49,7 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setUpViewModel()
 
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
