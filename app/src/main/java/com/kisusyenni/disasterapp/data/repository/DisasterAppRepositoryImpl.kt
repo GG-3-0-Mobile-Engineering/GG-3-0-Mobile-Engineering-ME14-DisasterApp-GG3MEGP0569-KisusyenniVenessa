@@ -6,8 +6,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import javax.inject.Inject
 
-class DisasterAppRepositoryImpl(private val api: ApiService): DisasterAppRepository {
+class DisasterAppRepositoryImpl @Inject constructor(private val api: ApiService): DisasterAppRepository {
     override fun getFloodGauges() = flow {
         val data = api.getFloodGauges()
         emit(data)
