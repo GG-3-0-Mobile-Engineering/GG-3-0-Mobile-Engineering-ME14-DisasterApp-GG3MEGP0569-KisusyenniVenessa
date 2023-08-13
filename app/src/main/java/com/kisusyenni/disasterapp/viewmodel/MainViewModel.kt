@@ -6,12 +6,15 @@ import androidx.lifecycle.viewModelScope
 import com.kisusyenni.disasterapp.data.repository.DisasterAppRepository
 import com.kisusyenni.disasterapp.utils.Area
 import com.kisusyenni.disasterapp.utils.UiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MainViewModel(private val repository: DisasterAppRepository) : ViewModel() {
+@HiltViewModel
+class MainViewModel @Inject constructor(private val repository: DisasterAppRepository) : ViewModel() {
 
     private val _reports: MutableStateFlow<UiState> = MutableStateFlow(UiState.Empty)
     val reports: StateFlow<UiState> = _reports
