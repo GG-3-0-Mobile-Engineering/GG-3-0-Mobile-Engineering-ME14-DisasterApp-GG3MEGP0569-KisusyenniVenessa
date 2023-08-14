@@ -31,13 +31,4 @@ class FakeApiService: ApiService {
     ): ReportsResponse {
         return DummyData.generateReports()
     }
-
-    override suspend fun getReportsArchive(
-        admin: String?,
-        format: String?,
-        disaster: String?,
-        geoformat: String?
-    ): ReportsResponse {
-        TODO("Not yet implemented")
-    }
 }

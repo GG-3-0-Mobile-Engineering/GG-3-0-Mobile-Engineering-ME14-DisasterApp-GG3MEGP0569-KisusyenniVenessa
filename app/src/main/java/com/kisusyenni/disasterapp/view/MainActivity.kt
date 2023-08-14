@@ -310,12 +310,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun setDisasterAreaList(area: List<Area>) {
         val areaListAdapter = AreaListAdapter()
         binding.rvArea.apply {
-//            addItemDecoration(
-//                DividerItemDecoration(
-//                    this.context,
-//                    DividerItemDecoration.VERTICAL
-//                )
-//            )
             adapter = areaListAdapter
             layoutManager =
                 LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
