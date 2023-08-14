@@ -27,7 +27,7 @@
             android:value="${MAPS_API_KEY}" />
 
         <activity
-            android:theme="@style/Base.Theme.DisasterApp.NoActionBar"
+            android:theme="@style/AppTheme.NoActionBar"
             android:name=".view.MainActivity"
             android:exported="true">
             <intent-filter>
