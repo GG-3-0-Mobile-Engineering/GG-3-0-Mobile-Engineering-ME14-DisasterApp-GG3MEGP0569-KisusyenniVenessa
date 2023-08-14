@@ -3,6 +3,7 @@ package com.kisusyenni.disasterapp.viewmodel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kisusyenni.disasterapp.data.SettingsPreference
 import com.kisusyenni.disasterapp.data.repository.DisasterAppRepository
 import com.kisusyenni.disasterapp.utils.Area
 import com.kisusyenni.disasterapp.utils.UiState
@@ -10,11 +11,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(private val repository: DisasterAppRepository) : ViewModel() {
+class MainViewModel @Inject constructor(private val repository: DisasterAppRepository, private  val preferences: SettingsPreference) : ViewModel() {
 
     private val _reports: MutableStateFlow<UiState> = MutableStateFlow(UiState.Empty)
     val reports: StateFlow<UiState> = _reports
@@ -27,6 +29,15 @@ class MainViewModel @Inject constructor(private val repository: DisasterAppRepos
 
     private val _areaData = MutableLiveData<List<Area>>()
     val areaData = _areaData
+
+    private val _isDarkMode: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isDarkMode: StateFlow<Boolean> = _isDarkMode
+
+    fun getTheme() {
+        viewModelScope.launch {
+            _isDarkMode.value = preferences.getTheme().first()
+        }
+    }
 
     fun getReports(disaster: String) = viewModelScope.launch {
        _reports.value = UiState.Loading

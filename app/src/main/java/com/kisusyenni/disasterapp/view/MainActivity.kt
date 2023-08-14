@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.children
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -20,6 +21,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
@@ -378,6 +380,27 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    /*
+    * Observe app theme from datastore
+    * */
+
+    private fun observeTheme() {
+        viewModel.getTheme()
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.isDarkMode.collect { isDarkMode ->
+                    if (isDarkMode) {
+                        mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this@MainActivity, R.raw.maps_dark_mode))
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    } else {
+                        mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this@MainActivity, R.raw.maps_light_mode))
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    }
+                }
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -402,6 +425,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         observeDisasterTypeAndArea()
         observeDisasterAreaList()
         showDisasterListBottomSheet()
+        observeTheme()
     }
 
 }
